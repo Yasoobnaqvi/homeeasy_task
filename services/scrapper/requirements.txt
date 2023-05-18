@@ -3,7 +3,7 @@ Flask-Migrate
 pytest
 pylint
 pytest-cov
-psycopg2==2.9.3
+psycopg2-binary
 Flask-SQLAlchemy
 Flask-Script
 python-dotenv

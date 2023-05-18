@@ -1,9 +1,9 @@
-FROM --platform=linux/amd64 python:3.6.4
-RUN apt-get update
-RUN apt-get install -yqq --no-install-recommends \
+FROM --platform=linux/amd64 python:3.8
+RUN apt-get update -yqq \
+    && apt-get install -yqq --no-install-recommends \
     # netcat \
     && apt-get -q clean
-RUN apt-get install libpq-dev
+
 RUN mkdir -p /app
 WORKDIR /app
 COPY ./requirements.txt /app/requirements.txt
