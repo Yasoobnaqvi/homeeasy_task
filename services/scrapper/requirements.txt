@@ -10,3 +10,5 @@ python-dotenv
 flask-debugtoolbar
 beautifulsoup4
 requests
+selenium
+webdriver_manager

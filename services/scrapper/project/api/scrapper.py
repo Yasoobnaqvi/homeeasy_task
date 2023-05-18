@@ -4,8 +4,21 @@ from project.api import models
 from flask import Blueprint, jsonify
 from project import db
 from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.chrome import ChromeDriverManager
 
 scrapper_blueprint = Blueprint('scrapper', __name__)
+
+chrome_options = Options()
+chrome_options.add_argument("--headless")  # Run Chrome in headless mode (without GUI)
+chrome_options.add_argument("--no-sandbox")
+chrome_options.add_argument("--disable-dev-shm-usage")
+webdriver_service = Service(ChromeDriverManager().install())
 
 @scrapper_blueprint.route('/scrap', methods=['GET'])
 def scrap():
@@ -14,28 +27,21 @@ def scrap():
             "message" : "Something went wrong"
         }
     url = "https://www.rentcafe.com/apartments-for-rent/us/tx/houston/"
-    response = requests.get(url)
+    # response = requests.get(url)
     try:
-         # Parse the HTML content using BeautifulSoup
-        soup = BeautifulSoup(response.content, "html.parser")
-        
-        # Find the relevant elements and extract data
-        listings = soup.find("ul", class_="listings")
-        apartments = listings.find_all("li", class_="listing-details")
-        
-        for apartment in apartments:
-            # Extract apartment details
-            name = apartment.find("div", class_="listing-name").text.strip()
-            address = apartment.find("div", class_="listing-address").text.strip()
-            city = apartment.find("span", class_="rent").text.strip()
-            state = apartment.find("span", class_="availability").text.strip()
+        driver = webdriver.Chrome(service=webdriver_service, options=chrome_options)
 
-        building = models.Building()
-        building.name = name
-        building.address = address
-        building.city = city
-        building.state = state
-        db.session.commit()
+        # Navigate to the RentCafe URL
+        driver.get(url)
+        wait = WebDriverWait(driver, 10)
+        apartment_elements = wait.until(EC.presence_of_all_elements_located((By.XPATH, "//div[contains(@class, 'apartment')]")))
+        for apartment_element in apartment_elements:
+            # Extract the desired data from each apartment element
+            name = apartment_element.find_element(By.CLASS_NAME, "property-name").text
+            address = apartment_element.find_element(By.CLASS_NAME, "property-address").text
+            rent = apartment_element.find_element(By.CLASS_NAME, "rent").text
+        print(name,address,rent)
+        # db.session.commit()
         response_object["status"] = "success"
         response_object["message"] = "Scrapped sucessfully"
         
