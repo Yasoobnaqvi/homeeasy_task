@@ -1,0 +1,12 @@
+Flask
+Flask-Migrate
+pytest
+pylint
+pytest-cov
+psycopg2==2.9.3
+Flask-SQLAlchemy
+Flask-Script
+python-dotenv
+flask-debugtoolbar
+beautifulsoup4
+requests

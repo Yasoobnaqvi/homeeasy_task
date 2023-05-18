@@ -1,0 +1,33 @@
+version: "3.8"
+services:
+  scrapper:
+    container_name: scrapper
+    build:
+      context: ./services/scrapper
+      dockerfile: Dockerfile
+    volumes:
+      - ./services/scrapper:/app
+    ports:
+      - 5008:5000
+    environment:
+      - FLASK_APP=project/__init__.py
+      - FLASK_DEBUG=1
+      - APP_SETTINGS=project.config.DevelopmentConfig
+      - DATABASE_URL=postgresql://postgres:postgres@scdb:5432/scrapper_db
+    depends_on:
+      - scdb
+    links:
+      - scdb
+    restart: unless-stopped
+
+  scdb:
+    container_name: scdb
+    build:
+      context: ./services/db
+      dockerfile: Dockerfile
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    restart: always
