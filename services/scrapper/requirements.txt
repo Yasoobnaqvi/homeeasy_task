@@ -12,3 +12,4 @@ beautifulsoup4
 requests
 selenium
 webdriver_manager
+bs4
