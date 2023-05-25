@@ -1,5 +1,5 @@
 
-import requests, sys, os 
+import sys 
 from project.api import models
 from flask import Blueprint, jsonify
 from project import db
@@ -19,6 +19,9 @@ chrome_options.add_argument("--headless")  # Run Chrome in headless mode (withou
 chrome_options.add_argument("--no-sandbox")
 chrome_options.add_argument("--disable-dev-shm-usage")
 webdriver_service = Service(ChromeDriverManager().install())
+driver = webdriver.Chrome(service=webdriver_service, options=chrome_options)
+
+
 
 @scrapper_blueprint.route('/scrap', methods=['GET'])
 def scrap():
@@ -27,20 +30,28 @@ def scrap():
             "message" : "Something went wrong"
         }
     url = "https://www.rentcafe.com/apartments-for-rent/us/tx/houston/"
-    # response = requests.get(url)
     try:
-        driver = webdriver.Chrome(service=webdriver_service, options=chrome_options)
 
         # Navigate to the RentCafe URL
         driver.get(url)
-        wait = WebDriverWait(driver, 10)
-        apartment_elements = wait.until(EC.presence_of_all_elements_located((By.XPATH, "//div[contains(@class, 'apartment')]")))
-        for apartment_element in apartment_elements:
+        wait = WebDriverWait(driver, 20)
+
+
+
+        
+        apartment_lists = wait.until(EC.presence_of_all_elements_located((By.XPATH, "//div[@id='listPanel']")))
+        for apartment_list in apartment_lists:
+            apartment_elements = apartment_list.find_element(By.XPATH, "//section[@id='results']")
+            print(apartment_elements,file=sys.stderr)
+
+        #     for apartment_element in apartment_elements:
+            
+        #         name = apartment_element.find_element(By.CLASS_NAME, "listing-name building-name").text
+        #         print(name)
             # Extract the desired data from each apartment element
-            name = apartment_element.find_element(By.CLASS_NAME, "property-name").text
-            address = apartment_element.find_element(By.CLASS_NAME, "property-address").text
-            rent = apartment_element.find_element(By.CLASS_NAME, "rent").text
-        print(name,address,rent)
+        #     address = apartment_element.find_element(By.CLASS_NAME, "property-address").text
+        #     rent = apartment_element.find_element(By.CLASS_NAME, "rent").text
+        # print(name,address,rent)
         # db.session.commit()
         response_object["status"] = "success"
         response_object["message"] = "Scrapped sucessfully"
