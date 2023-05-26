@@ -13,3 +13,5 @@ requests
 selenium
 webdriver_manager
 bs4
+random-user-agent
+proxy_randomizer
